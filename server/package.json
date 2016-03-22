@@ -1,0 +1,15 @@
+{
+  "name": "rocky2_server",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:web": "cd ./web-server && node app",
+    "start:game": "cd ./game-server && pomelo start"
+  },
+  "author": "cswleo <cswleo@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "pomelo": "^1.2.2"
+  }
+}

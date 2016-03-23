@@ -20,7 +20,7 @@ var config = {
   module: {
     loaders: [
       { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ },
-      { test: /(pixi|phaser).js/,  loader: 'script' }
+      { test: /(pixi|phaser|pomelo).js/,  loader: 'script' }
     ],
     noParse: [/\.min\.js/]
   },

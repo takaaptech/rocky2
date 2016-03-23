@@ -8,7 +8,7 @@ var config = {
 
   entry: {
     app: 'index.js',
-    vendor: ['lodash']
+    vendor: ['lodash', 'phaser-shim']
   },
 
   output: {

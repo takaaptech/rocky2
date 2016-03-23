@@ -25,6 +25,10 @@ class Root extends Component {
     this.state = { stage: '' };
     this.vc = new ViewController(this);
     this.register();
+
+    window.addEventListener('beforeunload', () => {
+      pomelo.disconnect();
+    }, false);
   }
 
   register() {

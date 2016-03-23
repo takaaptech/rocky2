@@ -1,13 +1,18 @@
-import 'pomelo';
-import { Game } from 'phaser-shim';
+import 'lib/pomelo';
 
-const game = new Game(800, 600);
+import React, { Component } from 'react';
+import ReactDom from 'react-dom';
+import { Provider } from 'react-redux';
 
-var host = "pomelo";
-var port = "3010";
+import { configureStore } from 'store';
 
-pomelo.init({ host: host, port: port, log: true }, () => {
-  pomelo.request("connector.entryHandler.entry", "hello pomelo", function(data) {
-    alert(data.msg);
-  });
-});
+import Root from 'containers/Root';
+
+const store = configureStore();
+
+ReactDom.render(
+  <Provider store={store}>
+    <Root />
+  </Provider>,
+  document.getElementById('app')
+);

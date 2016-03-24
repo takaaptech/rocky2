@@ -3,9 +3,8 @@ import { EventEmitter } from 'events';
 import Game from './game';
 import Player from './player';
 
-import { State, StateContext } from '../libs/fsm';
-
 import { each, find, max, range } from 'lodash';
+
 import * as Hand from './hand.js';
 
 export default class Table extends EventEmitter {

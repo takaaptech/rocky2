@@ -1,3 +1,4 @@
+import 'babel-polyfill';
 import 'lib/pomelo';
 
 import React, { Component } from 'react';
@@ -16,3 +17,7 @@ ReactDom.render(
   </Provider>,
   document.getElementById('app')
 );
+
+pomelo.on('close', (event) => {
+  // TODO: 預留處理斷線行為
+});

@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:web": "cd ./web-server && node app",
-    "start:game": "cd ./game-server && pomelo start",
-    "clear": "cd ./game-server && pomelo start"
+    "start:web": "cd ./web-server && node app ",
+    "start:game": "cd ./game-server && pomelo start"
   },
   "author": "cswleo <cswleo@gmail.com>",
   "license": "MIT",

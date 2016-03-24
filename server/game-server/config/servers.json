@@ -1,18 +1,40 @@
 {
-  "development":{
+  "development": {
     "connector": [
-    {"id": "connector-server-1", "host": "127.0.0.1", "port": 3150, "clientHost": "127.0.0.1", "clientPort": 3010, "frontend": true}
+      {
+        "id": "connector-server-1",
+        "host": "127.0.0.1",
+        "port": 3150,
+        "clientHost": "127.0.0.1",
+        "clientPort": 3010,
+        "frontend": true
+      }
     ],
-    "gate":[
-      {"id": "gate-server-1", "host": "127.0.0.1", "clientPort": 3014, "frontend": true}
+    "poker": [
+      {
+        "id": "poker-server-1",
+        "host": "127.0.0.1",
+        "port": 6050
+      }
     ]
   },
-  "production":{
+  "production": {
     "connector": [
-    {"id": "connector-server-1", "host": "127.0.0.1", "port": 3150, "clientHost": "127.0.0.1", "clientPort": 3010, "frontend": true}
+      {
+        "id": "connector-server-1",
+        "host": "127.0.0.1",
+        "port": 3150,
+        "clientHost": "127.0.0.1",
+        "clientPort": 3010,
+        "frontend": true
+      }
     ],
-    "gate":[
-      {"id": "gate-server-1", "host": "127.0.0.1", "clientPort": 3014, "frontend": true}
+    "poker": [
+      {
+        "id": "poker-server-1",
+        "host": "127.0.0.1",
+        "port": 6050
+      }
     ]
   }
 }

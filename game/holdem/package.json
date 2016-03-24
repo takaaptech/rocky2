@@ -1,0 +1,13 @@
+{
+  "name": "rocky2_game_holdem",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "author": "cswleo <cswleo@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "webpack-dev-server": "^1.14.1"
+  },
+  "dependencies": {}
+}

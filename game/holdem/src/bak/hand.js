@@ -1,18 +1,9 @@
-class Hand {
-  constructor(cards) {
-    this.cards = cards;
-  }
-}
 
-class Result {
-  constructor(rank, message) {
-    this.rank = rank;
-    this.message = message;
-  }
-}
-
-export function create(cards) {
-  return new Hand(cards)
+export function rankHand(hand) {
+  var result = rankHandInt(hand);
+  hand.rank = result.rank;
+  hand.message = result.message;
+  return hand;
 }
 
 function rankKickers(ranks, noOfCards) {
@@ -1190,14 +1181,6 @@ function rankHandInt(hand) {
     }
   }
 
-  result = new Result(rank, message);
-
-  return result;
+  return { rank, message };
 }
 
-export function rankHand(hand) {
-  var myResult = rankHandInt(hand);
-  hand.rank = myResult.rank;
-  hand.message = myResult.message;
-  return hand;
-}

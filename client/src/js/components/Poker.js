@@ -61,10 +61,6 @@ export default class Lobby extends Component {
     login();
   }
 
-  test() {
-    test();
-  }
-
   componentDidMount() {
     this.game = new Game(800, 600, Phaser.AUTO, this.refs.canvas, {
       preload: this.preload.bind(this),
@@ -74,17 +70,34 @@ export default class Lobby extends Component {
 
   preload() {
     const game = this.game;
+    game.load.image('desktop', 'img/desktop.jpg');
+    game.load.atlas('poker', 'img/poker.png', 'sprites/poker.json');
   }
 
   create() {
     const game = this.game;
+
+    game.add.image(0, 0, 'desktop');
+
+    const deck = game.add.sprite(350, 150, 'poker', 'PP.png');
+    deck.inputEnabled = true;
+
+    deck.events.onInputDown.add(this.onDeckClick, this);
+  }
+
+  onDeckClick() {
+    const game = this.game;
+
+    if (! this.p1) {
+      this.p1 = game.add.sprite(100, 150, 'poker', `${this.deck.pop()}.png`);
+    }
+
+    this.p1.frameName = `${this.deck.pop()}.png`
   }
 
   render() {
     return (
-      <div>
-        <h1>Poker</h1>
-        <button onClick={ this.test.bind(this) }>TT</button>
+      <div style={{ cursor: 'pointer' }}>
         <div ref="canvas"></div>
       </div>
     )

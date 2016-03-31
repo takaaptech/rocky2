@@ -6,7 +6,7 @@
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack --config webpack.config.prod.js --progress --colors",
     "dev": "cross-env NODE_ENV=development webpack-dev-server --config webpack.config.dev.js --content-base public",
-    "bs": "browser-sync start --proxy 127.0.0.1:8080 --ws"
+    "bs": "browser-sync start --proxy 127.0.0.1:8080 --ws --no-open"
   },
   "author": "cswleo <cswleo@gmail.com>",
   "license": "MIT",

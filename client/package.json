@@ -29,6 +29,7 @@
     "jade": "^1.11.0",
     "lodash": "^4.6.1",
     "mockjs": "^1.0.1-beta2",
+    "node-sass": "^3.4.2",
     "rimraf": "^2.5.2",
     "script-loader": "^0.6.1",
     "webpack": "^1.12.14"

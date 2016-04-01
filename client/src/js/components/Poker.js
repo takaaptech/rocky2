@@ -152,12 +152,12 @@ export default class Lobby extends Component {
     for (let i = 0; i < 4; i++) {
       this.players.push({
         playerNameText: game.add.text(50 + (i * 180), 280, 'playerName', style),
-        chipsText: game.add.text(50 + (i * 180), 300, 'chips', style),
-        isTalkedText: game.add.text(50 + (i * 180), 320, 'isTalked', style),
-        isFoldText: game.add.text(50 + (i * 180), 320, 'isFold', style),
-        handText: game.add.text(50 + (i * 180), 330, 'hande', style),
-        hand_1: game.add.sprite(20 + (i * 180), 400, 'poker', 'PP.png'),
-        hand_2: game.add.sprite(100 + (i * 180), 400, 'poker', 'PP.png'),
+        chipsText: game.add.text(50 + (i * 180), 310, 'chips', style),
+        isTalkedText: game.add.text(50 + (i * 180), 340, 'isTalked', style),
+        isFoldText: game.add.text(50 + (i * 180), 370, 'isFold', style),
+        handText: game.add.text(50 + (i * 180), 400, 'hande', style),
+        hand_1: game.add.sprite(20 + (i * 180), 430, 'poker', 'PP.png'),
+        hand_2: game.add.sprite(100 + (i * 180), 430, 'poker', 'PP.png'),
       });
     }
 

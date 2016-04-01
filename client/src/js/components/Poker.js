@@ -156,8 +156,8 @@ export default class Lobby extends Component {
         isTalkedText: game.add.text(50 + (i * 180), 340, 'isTalked', style),
         isFoldText: game.add.text(50 + (i * 180), 370, 'isFold', style),
         handText: game.add.text(50 + (i * 180), 400, 'hande', style),
-        hand_1: game.add.sprite(20 + (i * 180), 430, 'poker', 'PP.png'),
-        hand_2: game.add.sprite(100 + (i * 180), 430, 'poker', 'PP.png'),
+        hand_1: game.add.sprite(20 + (i * 180), 430, 'poker', 'BG.png'),
+        hand_2: game.add.sprite(100 + (i * 180), 430, 'poker', 'BG.png')
       });
     }
 
@@ -169,25 +169,35 @@ export default class Lobby extends Component {
   }
 
   update() {
-    table.game.board.forEach((card, idx) => {
-      this.board[idx].frameName = `${card}.png`;
+    const { game: { roundName, board }, players } = table;
+
+    this.board.forEach((sprite, idx) => {
+      const card = board[idx] || 'PP';
+      sprite.frameName = `${card}.png`;
     });
 
-    this.roundNameText.text = `回合：${table.game.roundName}`;
+    this.roundNameText.text = `回合：${roundName}`;
 
     this.currentPlayerText.text = `輪到：${table.getCurrentPlayer()}`;
 
-    table.players.forEach((player, idx) => {
-      this.players[idx].playerNameText.text = player.playerName;
-      this.players[idx].chipsText.text = player.chips;
-      this.players[idx].isTalkedText.text = `isTalked: ${player.talked}`
-      this.players[idx].isFoldText.text = `isTalked: ${player.folded}`
-      this.players[idx].hand_1.frameName = `${player.cards[0]}.png`;
-      this.players[idx].hand_2.frameName = `${player.cards[1]}.png`;
-      this.players[idx].handText.text = (player.hand && player.hand.message) ? player.hand.message : '';
+    const isShowCard = table.game.roundName !== "Deal";
+
+    this.players.forEach((sprite, idx) => {
+      const player  = players[idx];
+      sprite.playerNameText.text = player.playerName;
+      sprite.chipsText.text = player.chips;
+      sprite.isTalkedText.text = `isTalked: ${player.talked}`;
+      sprite.isFoldText.text = `isFold: ${player.folded}`;
+
+      if (player.cards[0] || player.cards[1]) {
+        sprite.hand_1.frameName = isShowCard ? `${player.cards[0]}.png` : 'PP.png';
+        sprite.hand_2.frameName = isShowCard ? `${player.cards[1]}.png` : 'PP.png';
+      }
+
+      sprite.handText.text = (player.hand && player.hand.message) ? player.hand.message : '';
     });
 
-    if(table.gameWinners && table.gameWinners.length > 0) {
+    if (table.gameWinners && table.gameWinners.length > 0) {
       this.gameWinnerText.text = `此局贏家為： ${table.gameWinners.map((winner) => winner.playerName).join(' ')}`;
     }
 

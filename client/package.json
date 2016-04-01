@@ -11,7 +11,7 @@
     "dev:js": "cross-env NODE_ENV=development webpack --config webpack.config.dev.js --progress --colors --watch",
     "dev:css": "node-sass ./src/css -o ./build/css --output-stype compressed -w",
     "jade": "jade ./src -o ./build -P",
-    "static": "cp -r ./src/img ./build"
+    "static": "cp -r ./src/img ./build && cp -r ./src/sprites ./build"
   },
   "author": "cswleo <cswleo@gmail.com>",
   "license": "MIT",

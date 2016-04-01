@@ -8,3 +8,7 @@
 `
 npm i -g node-sass cross-env jade webpack webpack-dev-server browser-sync rimraf
 `
+
+## game  
+### texas holdem
+[node-poker](https://github.com/mjhbell/node-poker)

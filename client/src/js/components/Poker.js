@@ -197,8 +197,10 @@ export default class Lobby extends Component {
       sprite.handText.text = (player.hand && player.hand.message) ? player.hand.message : '';
     });
 
-    if (table.gameWinners && table.gameWinners.length > 0) {
+    if (table.gameWinners && table.gameWinners.length > 0 && table.game.roundName === "Showdown") {
       this.gameWinnerText.text = `此局贏家為： ${table.gameWinners.map((winner) => winner.playerName).join(' ')}`;
+    } else {
+      this.gameWinnerText.text = '';
     }
 
   }

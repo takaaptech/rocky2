@@ -1,7 +1,7 @@
 import { indexOf } from 'lodash';
 
 export default class Player {
-  constructor(table, name, chips) {
+  constructor(table, name, chips, seatId) {
     this.table = table;
 
     this.game = table.game;
@@ -11,6 +11,8 @@ export default class Player {
 
     // 遊戲籌碼
     this.chips = chips;
+
+    this.seatId = seatId;
 
     // 回合制指標
     this.index = null;
@@ -79,5 +81,13 @@ export default class Player {
    */
   all() {
     console.log('all', this.name);
+  }
+
+  reset() {
+    this.cards = [];
+    this.talked = false;
+    this.allIn = false;
+    this.folded = false;
+    this.index = null;
   }
 }

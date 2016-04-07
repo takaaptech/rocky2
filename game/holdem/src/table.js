@@ -68,7 +68,6 @@ export default class Table extends EventEmitter {
       return { result: false, msg: '籌碼只能輸入數字' }
     }
 
-
     if (chips > this.maxBuyIn) {
       return { result: false, msg: '攜入籌碼大於最大買入限制' }
     }
@@ -143,6 +142,7 @@ export default class Table extends EventEmitter {
     this.players[bigBlind].chips -= this.bigBlind;
     this.game.bets[bigBlind] = this.bigBlind;
 
+    // 當前玩家指標
     let currentPlayer = bigBlind + 1;
 
     if (currentPlayer >= this.players.length) {
@@ -176,62 +176,63 @@ export default class Table extends EventEmitter {
     return this.players[this.currentPlayer];
   }
 
+  /**
+   * 遊戲狀態刷新
+   */
   progress() {
-    const table = this;
-
     if (this.isEndOfRound()) {
       let i;
 
-      for (i = 0; i < table.game.bets.length; i += 1) {
-        table.game.pot += parseInt(table.game.bets[i], 10);
-        table.game.roundBets[i] += parseInt(table.game.bets[i], 10);
+      for (i = 0; i < this.game.bets.length; i += 1) {
+        this.game.pot += parseInt(this.game.bets[i], 10);
+        this.game.roundBets[i] += parseInt(this.game.bets[i], 10);
       }
 
-      switch (table.roundState) {
+      switch (this.roundState) {
         case ROUND_STATE_DEAL:
-          table.roundState = ROUND_STATE_FLOP;
-          table.deck.pop();
+          this.roundState = ROUND_STATE_FLOP;
+          this.deck.pop();
           for (i = 0; i < 3; i += 1) {
-            table.game.board.push(table.deck.pop());
+            this.game.board.push(this.deck.pop());
           }
-          for (i = 0; i < table.game.bets.length; i += 1) {
-            table.game.bets[i] = 0;
+          for (i = 0; i < this.game.bets.length; i += 1) {
+            this.game.bets[i] = 0;
           }
-          table.players.forEach((player) => {
+          this.players.forEach((player) => {
             player.talked = false;
           });
           break;
 
         case ROUND_STATE_FLOP:
-          table.roundState = ROUND_STATE_TURN;
-          table.deck.pop();
-          table.game.board.push(table.deck.pop());
-          for (i = 0; i < table.game.bets.length; i += 1) {
-            table.game.bets[i] = 0;
+          this.roundState = ROUND_STATE_TURN;
+          this.deck.pop();
+          this.game.board.push(this.deck.pop());
+          for (i = 0; i < this.game.bets.length; i += 1) {
+            this.game.bets[i] = 0;
           }
-          table.players.forEach((player) => {
+          this.players.forEach((player) => {
             player.talked = false;
           });
           break;
 
         case ROUND_STATE_TURN:
-          table.roundState = ROUND_STATE_RIVER;
-          table.deck.pop();
-          table.game.board.push(table.deck.pop());
-          for (i = 0; i < table.game.bets.length; i += 1) {
-            table.game.bets[i] = 0;
+          this.roundState = ROUND_STATE_RIVER;
+          this.deck.pop();
+          this.game.board.push(this.deck.pop());
+          for (i = 0; i < this.game.bets.length; i += 1) {
+            this.game.bets[i] = 0;
           }
-          table.players.forEach((player) => {
+          this.players.forEach((player) => {
             player.talked = false;
           });
           break;
 
         case ROUND_STATE_RIVER:
-          table.roundState = ROUND_STATE_OVER;
-          table.game.bets = [];
+          this.roundState = ROUND_STATE_OVER;
+          this.game.bets = [];
 
-          table.players.forEach((player) => {
-            player.hand = Hand.rankHand(player.cards.concat(table.game.board));
+          this.players.forEach((player) => {
+            player.hand = Hand.rankHand(player.cards.concat(this.game.board));
           });
 
           this.checkForWinner();
@@ -242,53 +243,46 @@ export default class Table extends EventEmitter {
   }
 
   isEndOfRound() {
-    const table = this;
-    const game = this.game;
+    const maxBets = this.game.getMaxBets();
 
-    const maxBets = game.getMaxBets();
+    let bool, candidate;
 
-    let bool, candicate;
-
-    candicate = [];
+    candidate = [];
     bool = true;
 
-    table.players.forEach((player, idx) => {
+    this.players.forEach((player, idx) => {
       if (player.folded === false) {
-        if (player.talked === false || table.game.bets[idx] !== maxBets) {
+        if (player.talked === false || this.game.bets[idx] !== maxBets) {
           if (player.allIn === false) {
-            candicate.push(idx);
+            candidate.push(idx);
             bool = false;
           }
         }
       }
     });
 
-    const pl = table.players.length;
+    const pl = this.players.length;
 
-    let next = table.currentPlayer;
-    let n = 0;
+    let next, n;
 
-    if (candicate.length > 0) {
+    next = this.currentPlayer;
+    n = 0;
+
+    if (candidate.length > 0) {
       do {
         next++;
         if (next >= pl) next = 0;
-
-        if (candicate.indexOf(next) >= 0) {
-          break;
-        }
+        if (candidate.indexOf(next) >= 0) break;
       } while (++n < pl)
     } else {
       do {
         next++;
         if (next >= pl) next = 0;
-
-        if (table.players[next].folded === false) {
-          break;
-        }
+        if (this.players[next].folded === false) break;
       } while (++n < pl)
     }
 
-    table.currentPlayer = next;
+    this.currentPlayer = next;
 
     return bool;
   }

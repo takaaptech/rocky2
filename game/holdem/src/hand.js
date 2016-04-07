@@ -78,8 +78,8 @@ function rankHandInt(hand) {
     handSuits[i] = hand.cards[i].substr(1, 1);
   }
 
-  ranks = handRanks.sort().toString().replace(/\W/g, "");
-  suits = handSuits.sort().toString().replace(/\W/g, "");
+  ranks = handRanks.sort().toString().replace(/\W/g, '');
+  suits = handSuits.sort().toString().replace(/\W/g, '');
   cards = hand.cards.toString();
 
   //Four of a kind

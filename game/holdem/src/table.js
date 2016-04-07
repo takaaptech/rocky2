@@ -3,39 +3,60 @@ import Player from './player';
 import Game from './game';
 import Deck from './deck';
 import * as Hand from './hand';
-
-const ROUND_STATE_DEAL = 'ROUND_STATE_DEAL';
-const ROUND_STATE_FLOP = 'ROUND_STATE_FLOP';
-const ROUND_STATE_TURN = 'ROUND_STATE_TURN';
-const ROUND_STATE_RIVER = 'ROUND_STATE_RIVER';
-const ROUND_STATE_OVER = 'ROUND_STATE_OVER';
+import { ROUND_STATE_DEAL, ROUND_STATE_FLOP, ROUND_STATE_TURN, ROUND_STATE_RIVER, ROUND_STATE_OVER } from './constant';
 
 export default class Table extends EventEmitter {
   constructor(smallBlind, bigBlind, minPlayers, maxPlayers, minBuyIn, maxBuyIn) {
     super();
+    // 小盲注
     this.smallBlind = smallBlind;
+
+    // 大盲注
     this.bigBlind = bigBlind;
+
+    // 最小玩家數
     this.minPlayers = minPlayers;
+
+    // 最大玩家數
     this.maxPlayers = maxPlayers;
+
+    // 最小買入限制
     this.minBuyIn = minBuyIn;
+
+    // 最大買入限制
     this.maxBuyIn = maxBuyIn;
 
-    this.playersToAdd = new Map();
+    // 遊戲中玩家
     this.players = [];
 
-    this.game = new Game(this);
-
-    this.deck = new Deck();
-
+    // 按鈕（發牌）位置
     this.dealer = 0;
 
+    // 當前玩家指標
     this.currentPlayer = 0;
+
+    // 遊戲物件
+    this.game = new Game(this);
+
+    // 卡牌物件
+    this.deck = new Deck();
+
+    // 牌桌上玩家
+    this.playersToAdd = new Map();
   }
 
+  /**
+   * 加入玩家
+   *
+   * @param { string | number } seatNumber - 座位代碼
+   * @param { string } name - 玩家名稱
+   * @param { number } chips - 籌碼
+   * @returns {*}
+   */
   addPlayer(seatNumber, name, chips) {
-    const seatId = `_SEAT:${seatNumber}_`;
+    const seatId = '' + seatNumber;
 
-    if (!/^(10|[1-9])$/.test(seatNumber)) {
+    if (!/^(10|[1-9])$/.test(seatId)) {
       return { result: false, msg: '座位編號錯誤' }
     }
 
@@ -47,9 +68,6 @@ export default class Table extends EventEmitter {
       return { result: false, msg: '籌碼只能輸入數字' }
     }
 
-    if (this.playersToAdd.has(seatId)) {
-      return { result: false, msg: '座位已被占用' }
-    }
 
     if (chips > this.maxBuyIn) {
       return { result: false, msg: '攜入籌碼大於最大買入限制' }
@@ -57,6 +75,10 @@ export default class Table extends EventEmitter {
 
     if (chips < this.minBuyIn) {
       return { result: false, msg: '攜入籌碼小於最小買入限制' }
+    }
+
+    if (this.playersToAdd.has(seatId)) {
+      return { result: false, msg: '座位已被占用' }
     }
 
     this.playersToAdd.set(seatId, new Player(this, name, chips))
@@ -70,12 +92,27 @@ export default class Table extends EventEmitter {
     return { result: true };
   }
 
+  /**
+   * 初始化牌局
+   */
   newRound() {
-    this.reset();
+    // 重設玩家
+    this.players = [];
+    this.roundState = ROUND_STATE_DEAL;
+
+    // 重新洗牌
+    // NOTE: 目前每次都新牌局重新洗牌，不符合實際狀況
+    this.deck.reset().shuffle();
+
+    // 初始化遊戲
+    this.game.pot = 0;
+    this.game.bets = [];
+    this.game.roundBets = [];
 
     // 加入玩家
     this.playersToAdd.forEach((player) => {
-      this.players.push(player)
+      const l = this.players.push(player);
+      player.index = l - 1;
     });
 
     // 派二張手牌
@@ -84,24 +121,25 @@ export default class Table extends EventEmitter {
       player.cards.push(this.deck.pop());
     });
 
-    // 大小盲注位置
+    // 小盲注位置
     let smallBlind = this.dealer + 1;
 
     if (smallBlind >= this.players.length) {
       smallBlind = 0;
     }
 
+    // 大盲注位置
     let bigBlind = this.dealer + 2;
 
     if (bigBlind >= this.players.length) {
       bigBlind = bigBlind - this.players.length;
     }
 
-    // 小盲注
+    // 小盲注下注
     this.players[smallBlind].chips -= this.smallBlind;
     this.game.bets[smallBlind] = this.smallBlind;
 
-    // 大盲注
+    // 大盲注下注
     this.players[bigBlind].chips -= this.bigBlind;
     this.game.bets[bigBlind] = this.bigBlind;
 
@@ -116,116 +154,107 @@ export default class Table extends EventEmitter {
     this.emit('newRound', { dealer: this.dealer, smallBlind, bigBlind });
   }
 
-  // 過牌： check
-  // 下注： bet
-  // 蓋牌： fold
-  // 跟注： call
-  // 加注： raise
-  // 全下： all
+  /**
+   * 代理當前玩家行為
+   *
+   * @param type
+   * @param args
+   */
   action(type, ...args) {
     const player = this.players[this.currentPlayer];
     const fn = player[type];
     fn.apply(player, args);
-
     this.progress();
   }
 
+  /**
+   * 取得當前玩家
+   *
+   * @returns {*}
+   */
   getCurrentPlayer() {
     return this.players[this.currentPlayer];
   }
 
-  reset() {
-    // 重設玩家
-    this.players = [];
-    this.roundState = ROUND_STATE_DEAL;
-
-    // 重新洗牌
-    this.deck.reset().shuffle();
-
-    //
-    this.game.pot = 0;
-    this.game.bets = [];
-    this.game.roundBets = [];
-  }
-
   progress() {
-    console.log('process');
+    const table = this;
 
     if (this.isEndOfRound()) {
       let i;
 
-      for (i = 0; i < this.game.bets.length; i += 1) {
-        this.game.pot += parseInt(this.game.bets[i], 10);
-        this.game.roundBets[i] += parseInt(this.game.bets[i], 10);
+      for (i = 0; i < table.game.bets.length; i += 1) {
+        table.game.pot += parseInt(table.game.bets[i], 10);
+        table.game.roundBets[i] += parseInt(table.game.bets[i], 10);
       }
 
-      console.log(this.roundState);
-
-      switch (this.roundState) {
+      switch (table.roundState) {
         case ROUND_STATE_DEAL:
-          this.roundState = ROUND_STATE_FLOP;
-          this.deck.pop();
+          table.roundState = ROUND_STATE_FLOP;
+          table.deck.pop();
           for (i = 0; i < 3; i += 1) {
-            this.game.board.push(this.deck.pop());
+            table.game.board.push(table.deck.pop());
           }
-          for (i = 0; i < this.game.bets.length; i += 1) {
-            this.game.bets[i] = 0;
+          for (i = 0; i < table.game.bets.length; i += 1) {
+            table.game.bets[i] = 0;
           }
-          this.players.forEach((player) => {
+          table.players.forEach((player) => {
             player.talked = false;
           });
           break;
 
         case ROUND_STATE_FLOP:
-          this.roundState = ROUND_STATE_TURN;
-          this.deck.pop();
-          this.game.board.push(this.deck.pop());
-          for (i = 0; i < this.game.bets.length; i += 1) {
-            this.game.bets[i] = 0;
+          table.roundState = ROUND_STATE_TURN;
+          table.deck.pop();
+          table.game.board.push(table.deck.pop());
+          for (i = 0; i < table.game.bets.length; i += 1) {
+            table.game.bets[i] = 0;
           }
-          this.players.forEach((player) => {
+          table.players.forEach((player) => {
             player.talked = false;
           });
           break;
 
         case ROUND_STATE_TURN:
-          this.roundState = ROUND_STATE_RIVER;
-          this.deck.pop();
-          this.game.board.push(this.deck.pop());
-          for (i = 0; i < this.game.bets.length; i += 1) {
-            this.game.bets[i] = 0;
+          table.roundState = ROUND_STATE_RIVER;
+          table.deck.pop();
+          table.game.board.push(table.deck.pop());
+          for (i = 0; i < table.game.bets.length; i += 1) {
+            table.game.bets[i] = 0;
           }
-          this.players.forEach((player) => {
+          table.players.forEach((player) => {
             player.talked = false;
           });
           break;
 
         case ROUND_STATE_RIVER:
-          this.roundState = ROUND_STATE_OVER;
-          this.game.bets = [];
+          table.roundState = ROUND_STATE_OVER;
+          table.game.bets = [];
 
-          this.players.forEach((player) => {
-            player.hand = Hand.rankHand(player.cards.concat(this.game.board));
+          table.players.forEach((player) => {
+            player.hand = Hand.rankHand(player.cards.concat(table.game.board));
           });
 
-          //checkForWinner(table);
-          //checkForBankrupt(table);
+          this.checkForWinner();
+          this.checkForBankrupt();
           break;
       }
     }
-
-    this.emit('process');
   }
 
   isEndOfRound() {
-    const maxBets = this.game.getMaxBets();
-    const candicate = [];
+    const table = this;
+    const game = this.game;
 
-    let bool = true;
+    const maxBets = game.getMaxBets();
 
-    this.players.forEach((player, idx) => {
+    let bool, candicate;
+
+    candicate = [];
+    bool = true;
+
+    table.players.forEach((player, idx) => {
       if (player.folded === false) {
-        if (player.talked === false || this.game.bets[idx] !== maxBets) {
+        if (player.talked === false || table.game.bets[idx] !== maxBets) {
           if (player.allIn === false) {
             candicate.push(idx);
             bool = false;
@@ -234,9 +263,9 @@ export default class Table extends EventEmitter {
       }
     });
 
-    const pl = this.players.length;
+    const pl = table.players.length;
 
-    let next = this.currentPlayer;
+    let next = table.currentPlayer;
     let n = 0;
 
     if (candicate.length > 0) {
@@ -253,16 +282,23 @@ export default class Table extends EventEmitter {
         next++;
         if (next >= pl) next = 0;
 
-        if (this.players[next].folded === false) {
+        if (table.players[next].folded === false) {
           break;
         }
       } while (++n < pl)
     }
 
-    this.currentPlayer = next;
+    table.currentPlayer = next;
 
     return bool;
   }
 
+  checkForWinner() {
+
+  }
+
+  checkForBankrupt() {
+
+  }
 
 }
